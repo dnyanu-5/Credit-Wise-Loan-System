@@ -1,6 +1,6 @@
 # CreditWise Loan System
 
-An intelligent Machine Learning–based system to predict **credit card loan approval**
+An intelligent Machine Learning–based system to predict **credit Wise loan approval**
 using applicant financial, demographic, and credit-related data.
 
 ---
