@@ -15,3 +15,6 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Ignore dataset
+data/loan_approval_data.csv
