@@ -97,6 +97,11 @@ with open('scaler.pkl', 'wb') as f:
     pickle.dump(scaler, f)
 print(" Scaler saved as 'scaler.pkl'")
 
+# Save feature names
+with open('feature_names.pkl', 'wb') as f:
+    pickle.dump(list(X.columns), f)
+print("Feature names saved as 'feature_names.pkl'")
+
 print("\n" + "=" * 60)
 print(" Training Complete! Model ready for deployment.")
 print("=" * 60)

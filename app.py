@@ -95,34 +95,53 @@ elif page == "📊 Predict Loan":
         submitted = st.form_submit_button("🔮 Predict Loan Approval", use_container_width=True)
     
     if submitted:
-        # Create input dataframe (same feature order as training)
-        input_data = pd.DataFrame({
-            'Applicant_Income': [applicant_income],
-            'Coapplicant_Income': [coapplicant_income],
-            'Age': [age],
-            'Dependents': [dependents],
-            'Existing_Loans': [existing_loans],
-            'Savings': [savings],
-            'Collateral_Value': [collateral_value],
-            'Loan_Amount': [loan_amount],
-            'Loan_Term': [loan_term],
-            'Employment_Status_Salaried': [1 if employment_status == "Salaried" else 0],
-            'Employment_Status_Self-Employed': [1 if employment_status == "Self-Employed" else 0],
-            'Marital_Status_Single': [1 if marital_status == "Single" else 0],
-            'Loan_Purpose_Education': [1 if loan_purpose == "Education" else 0],
-            'Loan_Purpose_Home': [1 if loan_purpose == "Home" else 0],
-            'Loan_Purpose_Personal': [1 if loan_purpose == "Personal" else 0],
-            'Property_Area_Semiurban': [1 if property_area == "Semiurban" else 0],
-            'Property_Area_Urban': [1 if property_area == "Urban" else 0],
-            'Education_Level_1': [1 if education_level == "Graduate" else 0],
-            'Gender_Male': [1 if gender == "Male" else 0],
-            'Employer_Category_Government': [1 if employer_category == "Government" else 0],
-            'Employer_Category_MNC': [1 if employer_category == "MNC" else 0],
-            'Employer_Category_Private': [1 if employer_category == "Private" else 0],
-            'Employer_Category_Unemployed': [1 if employer_category == "Unemployed" else 0],
-            'DTI_Ratio_sq': [dti_ratio ** 2],
-            'Credit_Score_sq': [credit_score ** 2]
-        })
+        # Load feature names
+        with open('feature_names.pkl', 'rb') as f:
+            feature_names = pickle.load(f)
+        
+        # Create input with same encoding as training
+        input_dict = {
+            'Applicant_Income': applicant_income,
+            'Coapplicant_Income': coapplicant_income,
+            'Age': age,
+            'Dependents': dependents,
+            'Existing_Loans': existing_loans,
+            'Savings': savings,
+            'Collateral_Value': collateral_value,
+            'Loan_Amount': loan_amount,
+            'Loan_Term': loan_term,
+            'DTI_Ratio': dti_ratio,
+            'Credit_Score': credit_score,
+            'DTI_Ratio_sq': dti_ratio ** 2,
+            'Credit_Score_sq': credit_score ** 2
+        }
+        
+        # Add categorical encodings
+        input_dict['Employment_Status_Self-employed'] = 1 if employment_status == "Self-Employed" else 0
+        input_dict['Employment_Status_Unemployed'] = 1 if employment_status == "Business" else 0
+        input_dict['Marital_Status_Single'] = 1 if marital_status == "Single" else 0
+        input_dict['Loan_Purpose_Education'] = 1 if loan_purpose == "Education" else 0
+        input_dict['Loan_Purpose_Home'] = 1 if loan_purpose == "Home" else 0
+        input_dict['Loan_Purpose_Personal'] = 1 if loan_purpose == "Personal" else 0
+        input_dict['Property_Area_Semiurban'] = 1 if property_area == "Semiurban" else 0
+        input_dict['Property_Area_Urban'] = 1 if property_area == "Urban" else 0
+        input_dict['Education_Level_Not Graduate'] = 1 if education_level == "Undergraduate" else 0
+        input_dict['Education_Level_PG'] = 1 if education_level == "Postgraduate" else 0
+        input_dict['Gender_Male'] = 1 if gender == "Male" else 0
+        input_dict['Employer_Category_MNC'] = 1 if employer_category == "MNC" else 0
+        input_dict['Employer_Category_Private'] = 1 if employer_category == "Private" else 0
+        input_dict['Employer_Category_Self'] = 1 if employer_category == "Self" else 0
+        input_dict['Employer_Category_Unemployed'] = 1 if employer_category == "Unemployed" else 0
+        
+        # Create dataframe
+        input_data = pd.DataFrame([input_dict])
+        
+        # Ensure we have all features in the right order
+        for col in feature_names:
+            if col not in input_data.columns:
+                input_data[col] = 0
+        
+        input_data = input_data[feature_names]
         
         # Scale and predict
         input_scaled = scaler.transform(input_data)
